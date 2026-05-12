@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable'; // Sadece eklentiyi cagir
+import 'jspdf-autotable';
 
 export interface QuoteItem {
   id: number;
@@ -52,7 +52,9 @@ const generateFallbackPDF = (quoteData: QuoteData, quoteNumber: string): void =>
     // ===== BASLIK =====
     doc.setFontSize(12);
     doc.setTextColor(30, 58, 138);
+    doc.setFont(undefined, 'bold');
     doc.text('FIYAT TEKLIFI', marginLeft, yPosition);
+    doc.setFont(undefined, 'normal');
 
     yPosition += 8;
 
@@ -74,7 +76,9 @@ const generateFallbackPDF = (quoteData: QuoteData, quoteNumber: string): void =>
     // ===== MUSTERI BILGILERI =====
     doc.setFontSize(9);
     doc.setTextColor(30, 58, 138);
+    doc.setFont(undefined, 'bold');
     doc.text('MUSTERI BILGILERI', marginLeft, yPosition);
+    doc.setFont(undefined, 'normal');
     
     yPosition += 5;
     doc.setFontSize(8);
@@ -100,19 +104,23 @@ const generateFallbackPDF = (quoteData: QuoteData, quoteNumber: string): void =>
     // ===== URUN LISTESI (Basit Metin Formatinda) =====
     doc.setFontSize(8);
     doc.setTextColor(30, 58, 138);
+    doc.setFont(undefined, 'bold');
     doc.text('URUN LISTESI', marginLeft, yPosition);
+    doc.setFont(undefined, 'normal');
 
     yPosition += 5;
 
     // Baslik satiri
     doc.setFontSize(7);
     doc.setTextColor(0, 0, 0);
+    doc.setFont(undefined, 'bold');
     doc.text('Sira', marginLeft, yPosition);
     doc.text('Urun Adi', marginLeft + 10, yPosition);
     doc.text('Kod', marginLeft + 70, yPosition);
     doc.text('Adet', marginLeft + 100, yPosition);
     doc.text('Fiyat', marginLeft + 120, yPosition);
     doc.text('Toplam', marginLeft + 150, yPosition);
+    doc.setFont(undefined, 'normal');
 
     yPosition += 4;
 
@@ -128,6 +136,7 @@ const generateFallbackPDF = (quoteData: QuoteData, quoteNumber: string): void =>
       
       doc.setFontSize(7);
       doc.setTextColor(0, 0, 0);
+      doc.setFont(undefined, 'normal');
       
       doc.text((index + 1).toString(), marginLeft, yPosition);
       
@@ -154,6 +163,7 @@ const generateFallbackPDF = (quoteData: QuoteData, quoteNumber: string): void =>
     // ===== TOPLAM TUTARLAR =====
     doc.setFontSize(8);
     doc.setTextColor(0, 0, 0);
+    doc.setFont(undefined, 'normal');
 
     const labelX = marginLeft + 130;
     const valueX = pageWidth - marginRight;
@@ -171,18 +181,18 @@ const generateFallbackPDF = (quoteData: QuoteData, quoteNumber: string): void =>
 
     // Genel Toplam - Kalin
     doc.setFontSize(9);
-    doc.setFontStyle('bold');
+    doc.setFont(undefined, 'bold');
     doc.setTextColor(30, 58, 138);
     const grandTotal = quoteData.totalAmount + kdvAmount;
     doc.text('GENEL TOPLAM:', labelX, yPosition);
     doc.text(`${grandTotal.toFixed(2)} TL`, valueX, yPosition, { align: 'right' });
+    doc.setFont(undefined, 'normal');
 
     yPosition += 10;
 
     // ===== NOTLAR =====
     doc.setFontSize(7);
     doc.setTextColor(100, 100, 100);
-    doc.setFontStyle('normal');
     
     const notesText = 'Bu teklif 30 gun gecerlidir. Fiyatlar KDV haric olup degisiklige tabi tutulabilir. Siparis icin lutfen iletisime geciniz.';
     doc.text(notesText, marginLeft, yPosition, { maxWidth: contentWidth });
@@ -232,7 +242,9 @@ export const generateQuotePDF = (quoteData: QuoteData): void => {
     // ===== ANTET (BASIT METIN) =====
     doc.setFontSize(20);
     doc.setTextColor(30, 58, 138);
+    doc.setFont(undefined, 'bold');
     doc.text('YAZANLAR GRUP', marginLeft, yPosition);
+    doc.setFont(undefined, 'normal');
     
     yPosition += 5;
     doc.setFontSize(10);
@@ -259,14 +271,18 @@ export const generateQuotePDF = (quoteData: QuoteData): void => {
     // ===== BASLIK =====
     doc.setFontSize(14);
     doc.setTextColor(30, 58, 138);
+    doc.setFont(undefined, 'bold');
     doc.text('FIYAT TEKLIFI (PROFORMA INVOICE)', marginLeft, yPosition);
+    doc.setFont(undefined, 'normal');
 
     yPosition += 10;
 
     // ===== MUSTERI BILGILERI =====
     doc.setFontSize(10);
     doc.setTextColor(30, 58, 138);
+    doc.setFont(undefined, 'bold');
     doc.text('MUSTERI BILGILERI', marginLeft, yPosition);
+    doc.setFont(undefined, 'normal');
 
     yPosition += 6;
     doc.setFontSize(9);
@@ -353,6 +369,7 @@ export const generateQuotePDF = (quoteData: QuoteData): void => {
       // ===== TOPLAM TUTARLAR =====
       doc.setFontSize(10);
       doc.setTextColor(0, 0, 0);
+      doc.setFont(undefined, 'normal');
       
       const totalLabelX = marginLeft;
       const totalValueX = pageWidth - marginRight;
@@ -372,18 +389,18 @@ export const generateQuotePDF = (quoteData: QuoteData): void => {
 
       // Genel Toplam
       doc.setFontSize(11);
-      doc.setFontStyle('bold');
+      doc.setFont(undefined, 'bold');
       doc.setTextColor(30, 58, 138);
       const grandTotal = (quoteData.totalAmount || 0) + kdvAmount;
       doc.text('GENEL TOPLAM:', totalLabelX, yPosition);
       doc.text(`${grandTotal.toFixed(2)} TL`, totalValueX, yPosition, { align: 'right' });
+      doc.setFont(undefined, 'normal');
 
       yPosition += 12;
 
       // ===== NOTLAR =====
       doc.setFontSize(8);
       doc.setTextColor(100, 100, 100);
-      doc.setFontStyle('normal');
       
       const notesText = 'Bu teklif 30 gun gecerlidir. Fiyatlar KDV haric olup degisiklige tabi tutulabilir. Siparis icin lutfen iletisime geciniz.';
       doc.text(notesText, marginLeft, yPosition, { maxWidth: contentWidth });
