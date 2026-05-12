@@ -118,21 +118,29 @@ export default function ProductDetail() {
   };
 
   const downloadProductQuote = () => {
-    generateQuotePDF({
-      items: [
-        {
-          id: product.id,
-          name: productName,
-          technicalCode: product.technicalCode,
-          price: product.price,
-          quantity: quantity
-        }
-      ],
-      totalAmount: product.price * quantity,
-      customerName: "Musteri",
-      customerEmail: "info@yazanlargrup.com",
-      companyName: "Yazanlar Grup B2B"
-    });
+    console.log('Urun PDF indirme basladi:', { productName, quantity, price: product.price });
+    
+    try {
+      generateQuotePDF({
+        items: [
+          {
+            id: product.id,
+            name: productName,
+            technicalCode: product.technicalCode,
+            price: product.price,
+            quantity: quantity
+          }
+        ],
+        totalAmount: product.price * quantity,
+        customerName: "Musteri",
+        customerEmail: "info@yazanlargrup.com",
+        companyName: "Yazanlar Grup B2B"
+      });
+      console.log('Urun PDF indirme tamamlandi');
+    } catch (error) {
+      console.error('Urun PDF indirme hatasi:', error);
+      alert('PDF indirme sirasinda bir hata olustur.');
+    }
   };
 
   return (

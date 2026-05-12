@@ -49,6 +49,13 @@ export default function Cart() {
   };
 
   const downloadQuote = () => {
+    console.log('Sepet PDF indirme basladi, urun sayisi:', cartItems.length);
+    
+    if (cartItems.length === 0) {
+      alert('Sepete urun ekleyin!');
+      return;
+    }
+
     const quoteItems = cartItems.map(item => ({
       id: item.id,
       name: item.name,
@@ -57,13 +64,21 @@ export default function Cart() {
       quantity: item.quantity
     }));
 
-    generateQuotePDF({
-      items: quoteItems,
-      totalAmount: subtotal,
-      customerName: "Müşteri",
-      customerEmail: "info@yazanlargrup.com",
-      companyName: "Yazanlar Grup B2B"
-    });
+    console.log('Teklif verileri hazirlaniyor:', { quoteItems, subtotal });
+
+    try {
+      generateQuotePDF({
+        items: quoteItems,
+        totalAmount: subtotal,
+        customerName: "Musteri",
+        customerEmail: "info@yazanlargrup.com",
+        companyName: "Yazanlar Grup B2B"
+      });
+      console.log('PDF indirme tamamlandi');
+    } catch (error) {
+      console.error('PDF indirme hatasi:', error);
+      alert('PDF indirme sirasinda bir hata olustur.');
+    }
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
