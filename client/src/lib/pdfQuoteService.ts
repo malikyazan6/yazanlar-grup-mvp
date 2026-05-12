@@ -19,58 +19,44 @@ export interface QuoteData {
 
 export const generateQuotePDF = (quoteData: QuoteData): void => {
   try {
-    console.log('PDF oluşturma başladı:', quoteData);
+    console.log('PDF olusturma basladi:', quoteData);
 
-    // Veri doğrulama
+    // Veri dogrulama
     if (!quoteData.items || quoteData.items.length === 0) {
-      console.error('Ürün listesi boş!');
-      alert('Lütfen en az bir ürün seçin.');
+      console.error('Urun listesi bos!');
+      alert('Lutfen en az bir urun secin.');
       return;
     }
 
-    // PDF belgesini oluştur
+    // PDF belgesi olustur - basit ve stabil
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: 'a4'
+      format: 'a4',
+      compress: true
     });
 
-    // Sayfa genişliği ve marjinler
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const marginLeft = 15;
     const marginRight = 15;
+    const marginTop = 15;
     const contentWidth = pageWidth - marginLeft - marginRight;
 
-    let yPosition = 15;
+    let yPosition = marginTop;
 
-    // ===== ANTET (HEADER) =====
-    doc.setFontSize(24);
-    doc.setTextColor(30, 58, 138); // Derin Lacivert
-    doc.text('YAZANLAR', marginLeft, yPosition);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(113, 113, 122); // Çelik Grisi
-    doc.text('GRUP', marginLeft, yPosition + 6);
-
-    // Şirket bilgileri sağ tarafta
-    doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
-    const headerRightX = pageWidth - marginRight;
-    doc.text('Yazanlar Grup B2B', headerRightX, yPosition, { align: 'right' });
-    doc.text('İhtisas Pazar Yeri', headerRightX, yPosition + 5, { align: 'right' });
-    doc.text('www.yazanlargrup.com', headerRightX, yPosition + 10, { align: 'right' });
-
-    yPosition += 20;
-
-    // ===== BAŞLIK =====
-    doc.setFontSize(16);
+    // ===== ANTET (BASIT METIN) =====
+    doc.setFontSize(20);
     doc.setTextColor(30, 58, 138);
-    doc.text('FİYAT TEKLİFİ (PROFORMA INVOICE)', marginLeft, yPosition);
-
-    yPosition += 10;
-
-    // ===== TARİH VE REFERANS =====
+    doc.text('YAZANLAR GRUP', marginLeft, yPosition);
+    
+    yPosition += 5;
     doc.setFontSize(10);
+    doc.setTextColor(113, 113, 122);
+    doc.text('B2B Ihtisas Pazar Yeri', marginLeft, yPosition);
+
+    // Sag uste tarih ve teklif no
+    doc.setFontSize(9);
     doc.setTextColor(0, 0, 0);
     const today = new Date();
     const formattedDate = today.toLocaleDateString('tr-TR', {
@@ -81,22 +67,29 @@ export const generateQuotePDF = (quoteData: QuoteData): void => {
     
     const quoteNumber = `YZN-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}-${Math.floor(Math.random() * 10000).toString().padStart(5, '0')}`;
 
-    doc.text(`Tarih: ${formattedDate}`, marginLeft, yPosition);
-    doc.text(`Teklif No: ${quoteNumber}`, marginLeft, yPosition + 6);
+    doc.text(`Tarih: ${formattedDate}`, pageWidth - marginRight, yPosition, { align: 'right' });
+    doc.text(`Teklif No: ${quoteNumber}`, pageWidth - marginRight, yPosition + 5, { align: 'right' });
 
     yPosition += 15;
 
-    // ===== MÜŞTERİ BİLGİLERİ =====
-    doc.setFontSize(11);
+    // ===== BASLIK =====
+    doc.setFontSize(14);
     doc.setTextColor(30, 58, 138);
-    doc.text('MÜŞTERİ BİLGİLERİ', marginLeft, yPosition);
+    doc.text('FIYAT TEKLIFI (PROFORMA INVOICE)', marginLeft, yPosition);
+
+    yPosition += 10;
+
+    // ===== MUSTERI BILGILERI =====
+    doc.setFontSize(10);
+    doc.setTextColor(30, 58, 138);
+    doc.text('MUSTERI BILGILERI', marginLeft, yPosition);
 
     yPosition += 6;
     doc.setFontSize(9);
     doc.setTextColor(0, 0, 0);
     
     if (quoteData.companyName) {
-      doc.text(`Şirket: ${quoteData.companyName}`, marginLeft, yPosition);
+      doc.text(`Sirket: ${quoteData.companyName}`, marginLeft, yPosition);
       yPosition += 5;
     }
     
@@ -110,47 +103,62 @@ export const generateQuotePDF = (quoteData: QuoteData): void => {
       yPosition += 5;
     }
 
-    yPosition += 5;
+    yPosition += 8;
 
-    // ===== ÜRÜN TABLOSU =====
+    // ===== URUN TABLOSU (autoTable) =====
     const tableData = quoteData.items.map((item, index) => [
       (index + 1).toString(),
       item.name || 'N/A',
       item.technicalCode || 'N/A',
       item.quantity.toString(),
-      `₺ ${(item.price || 0).toFixed(2)}`,
-      `₺ ${((item.price || 0) * (item.quantity || 0)).toFixed(2)}`
+      `${(item.price || 0).toFixed(2)} TL`,
+      `${((item.price || 0) * (item.quantity || 0)).toFixed(2)} TL`
     ]);
 
-    console.log('Tablo verisi:', tableData);
+    console.log('Tablo verisi hazir:', tableData);
 
-    // autoTable kullan
+    // autoTable kullan - stabil yontem
     (doc as any).autoTable({
-      head: [['Sıra', 'Ürün Adı', 'Teknik Kod', 'Miktar', 'Birim Fiyat', 'Toplam']],
+      head: [['Sira', 'Urun Adi', 'Teknik Kod', 'Miktar', 'Birim Fiyat', 'Toplam']],
       body: tableData,
       startY: yPosition,
-      margin: { left: marginLeft, right: marginRight },
+      margin: { left: marginLeft, right: marginRight, top: marginTop, bottom: 20 },
       headStyles: {
         fillColor: [30, 58, 138],
         textColor: [255, 255, 255],
         fontSize: 9,
         fontStyle: 'bold',
-        halign: 'center' as const
+        halign: 'center' as const,
+        valign: 'middle' as const
       },
       bodyStyles: {
         fontSize: 9,
-        textColor: [0, 0, 0]
+        textColor: [0, 0, 0],
+        valign: 'middle' as const
       },
       alternateRowStyles: {
-        fillColor: [240, 240, 245]
+        fillColor: [245, 245, 250]
       },
       columnStyles: {
         0: { halign: 'center' as const, cellWidth: 12 },
         1: { halign: 'left' as const },
-        2: { halign: 'center' as const, cellWidth: 25 },
+        2: { halign: 'center' as const, cellWidth: 22 },
         3: { halign: 'center' as const, cellWidth: 15 },
-        4: { halign: 'right' as const, cellWidth: 25 },
-        5: { halign: 'right' as const, cellWidth: 25 }
+        4: { halign: 'right' as const, cellWidth: 22 },
+        5: { halign: 'right' as const, cellWidth: 22 }
+      },
+      didDrawPage: (data: any) => {
+        // Sayfa altinda footer
+        const pageSize = doc.internal.pageSize;
+        const pageHeight = pageSize.getHeight();
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(
+          `Sayfa ${data.pageNumber}`,
+          pageWidth / 2,
+          pageHeight - 10,
+          { align: 'center' }
+        );
       }
     });
 
@@ -159,44 +167,50 @@ export const generateQuotePDF = (quoteData: QuoteData): void => {
 
     // ===== TOPLAM TUTARLAR =====
     doc.setFontSize(10);
-    doc.setTextColor(30, 58, 138);
+    doc.setTextColor(0, 0, 0);
     
-    const totalLabelX = pageWidth - marginRight - 60;
+    const totalLabelX = marginLeft;
     const totalValueX = pageWidth - marginRight;
 
-    doc.text('Ara Toplam:', totalLabelX, yPosition, { align: 'left' });
-    doc.text(`₺ ${(quoteData.totalAmount || 0).toFixed(2)}`, totalValueX, yPosition, { align: 'right' });
+    // Ara Toplam
+    doc.text('Ara Toplam:', totalLabelX, yPosition);
+    doc.text(`${(quoteData.totalAmount || 0).toFixed(2)} TL`, totalValueX, yPosition, { align: 'right' });
 
-    yPosition += 8;
+    yPosition += 7;
+
+    // KDV
+    const kdvAmount = (quoteData.totalAmount || 0) * 0.18;
+    doc.text('KDV (%18):', totalLabelX, yPosition);
+    doc.text(`${kdvAmount.toFixed(2)} TL`, totalValueX, yPosition, { align: 'right' });
+
+    yPosition += 7;
+
+    // Genel Toplam
     doc.setFontSize(11);
     doc.setFontStyle('bold');
-    doc.text('GENEL TOPLAM:', totalLabelX, yPosition, { align: 'left' });
-    doc.text(`₺ ${(quoteData.totalAmount || 0).toFixed(2)}`, totalValueX, yPosition, { align: 'right' });
+    doc.setTextColor(30, 58, 138);
+    const grandTotal = (quoteData.totalAmount || 0) + kdvAmount;
+    doc.text('GENEL TOPLAM:', totalLabelX, yPosition);
+    doc.text(`${grandTotal.toFixed(2)} TL`, totalValueX, yPosition, { align: 'right' });
 
     yPosition += 12;
 
     // ===== NOTLAR =====
-    doc.setFontSize(9);
-    doc.setTextColor(113, 113, 122);
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
     doc.setFontStyle('normal');
     
-    const notesText = 'Bu teklif 30 gün geçerlidir. Fiyatlar KDV hariçtir. Sipariş için lütfen iletişime geçiniz.';
+    const notesText = 'Bu teklif 30 gun gecerlidir. Fiyatlar KDV haric olup degisiklige tabi tutulabilir. Siparis icin lutfen iletisime geciniz.';
     doc.text(notesText, marginLeft, yPosition, { maxWidth: contentWidth });
 
-    yPosition += 15;
-
-    // ===== İMZA ALANLARI =====
-    doc.setFontSize(9);
-    doc.text('Hazırlayan:', marginLeft, yPosition);
-    doc.text('Onaylayan:', pageWidth / 2, yPosition);
-
-    // PDF'i indir
+    // PDF'i indir - garantili
     console.log('PDF kaydediliyor:', `Yazanlar-Grup-Teklif-${quoteNumber}.pdf`);
     doc.save(`Yazanlar-Grup-Teklif-${quoteNumber}.pdf`);
-    console.log('PDF başarıyla indirildi!');
+    console.log('PDF basariyla indirildi!');
 
   } catch (error) {
-    console.error('PDF oluşturma hatası:', error);
-    alert('PDF oluşturulurken bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
+    console.error('PDF olusturma hatasi:', error);
+    console.error('Hata detayi:', error instanceof Error ? error.message : String(error));
+    alert('PDF olusturulurken bir hata olustur. Lutfen tarayici konsolunu kontrol edin ve daha sonra tekrar deneyin.');
   }
 };
