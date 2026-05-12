@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useLocation } from "wouter";
-import { ArrowLeft, Trash2, ShoppingCart, Zap } from "lucide-react";
+import { ArrowLeft, Trash2, ShoppingCart, Zap, Download } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { generateQuotePDF } from "@/lib/pdfQuoteService";
 
 interface CartItem {
   id: number;
@@ -45,6 +46,24 @@ export default function Cart() {
   const clearCart = () => {
     setCartItems([]);
     localStorage.setItem("cart", JSON.stringify([]));
+  };
+
+  const downloadQuote = () => {
+    const quoteItems = cartItems.map(item => ({
+      id: item.id,
+      name: item.name,
+      technicalCode: item.technicalCode,
+      price: item.price,
+      quantity: item.quantity
+    }));
+
+    generateQuotePDF({
+      items: quoteItems,
+      totalAmount: subtotal,
+      customerName: "Müşteri",
+      customerEmail: "info@yazanlargrup.com",
+      companyName: "Yazanlar Grup B2B"
+    });
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -209,6 +228,15 @@ export default function Cart() {
                   className="w-full bg-accent hover:bg-accent/90 text-accent-foreground mb-3 py-6"
                 >
                   {language === 'tr' ? 'Ödemeye Geç' : 'Proceed to Payment'}
+                </Button>
+
+                <Button 
+                  onClick={downloadQuote}
+                  variant="outline"
+                  className="w-full py-6 mb-3 border-primary text-primary hover:bg-primary/10"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  {language === 'tr' ? 'PDF Teklif İndir' : 'Download Quote PDF'}
                 </Button>
 
                 <Button 

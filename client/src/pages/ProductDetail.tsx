@@ -15,6 +15,7 @@ import { useState } from "react";
 import { getProductById } from "@/lib/mockData";
 import { trpc } from "@/lib/trpc";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { generateQuotePDF } from "@/lib/pdfQuoteService";
 
 export default function ProductDetail() {
   const [location, navigate] = useLocation() as any;
@@ -114,6 +115,24 @@ export default function ProductDetail() {
       console.error("B2B quote submission error:", error);
       alert("Teklif talebiniz gonderilirken bir hata olustur. Lutfen daha sonra tekrar deneyin.");
     }
+  };
+
+  const downloadProductQuote = () => {
+    generateQuotePDF({
+      items: [
+        {
+          id: product.id,
+          name: productName,
+          technicalCode: product.technicalCode,
+          price: product.price,
+          quantity: quantity
+        }
+      ],
+      totalAmount: product.price * quantity,
+      customerName: "Musteri",
+      customerEmail: "info@yazanlargrup.com",
+      companyName: "Yazanlar Grup B2B"
+    });
   };
 
   return (
@@ -230,6 +249,16 @@ export default function ProductDetail() {
                 className="w-full bg-accent hover:bg-accent/90 text-accent-foreground py-6 mb-3"
               >
                 {t('product.addToCart')}
+              </Button>
+
+              {/* PDF Quote Button */}
+              <Button
+                onClick={downloadProductQuote}
+                variant="outline"
+                className="w-full border-primary text-primary hover:bg-primary/10 py-6 mb-3"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                {language === 'tr' ? 'PDF Teklif Indir' : 'Download Quote PDF'}
               </Button>
 
               {/* B2B Button */}
