@@ -1,5 +1,5 @@
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export interface QuoteItem {
   id: number;
@@ -105,7 +105,7 @@ export const generateQuotePDF = (quoteData: QuoteData): void => {
 
     yPosition += 8;
 
-    // ===== URUN TABLOSU (autoTable) =====
+    // ===== URUN TABLOSU (autoTable - Modern ESM) =====
     const tableData = quoteData.items.map((item, index) => [
       (index + 1).toString(),
       item.name || 'N/A',
@@ -117,8 +117,8 @@ export const generateQuotePDF = (quoteData: QuoteData): void => {
 
     console.log('Tablo verisi hazir:', tableData);
 
-    // autoTable kullan - stabil yontem
-    (doc as any).autoTable({
+    // autoTable - Modern ESM standartina uygun cagri
+    autoTable(doc, {
       head: [['Sira', 'Urun Adi', 'Teknik Kod', 'Miktar', 'Birim Fiyat', 'Toplam']],
       body: tableData,
       startY: yPosition,
@@ -162,8 +162,9 @@ export const generateQuotePDF = (quoteData: QuoteData): void => {
       }
     });
 
-    yPosition = (doc as any).lastAutoTable?.finalY || yPosition + 50;
-    yPosition += 10;
+    // autoTable sonrasi y pozisyonunu al
+    const finalY = (doc as any).lastAutoTable?.finalY || yPosition + 50;
+    yPosition = finalY + 10;
 
     // ===== TOPLAM TUTARLAR =====
     doc.setFontSize(10);
