@@ -123,7 +123,7 @@ export default function QuickViewModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[95vh] overflow-hidden p-0">
+      <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden p-0">
         <DialogHeader className="px-6 pt-4 pb-0">
           <div className="flex items-center justify-between w-full">
             <DialogTitle className="text-2xl font-bold">{t.quickView}</DialogTitle>
@@ -137,10 +137,12 @@ export default function QuickViewModal({
         </DialogHeader>
 
         <div className="overflow-y-auto max-h-[calc(95vh-60px)]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
-            {/* Product Image - Kare Format, Orani Korunuyor */}
-            <div className="flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg overflow-hidden">
-              <div className="w-full aspect-square flex items-center justify-center">
+          {/* DIKEY YERLESIM: Gorsel Ust, Detaylar Alt */}
+          <div className="flex flex-col gap-6 p-6">
+            
+            {/* GORSEL ALANI - SABIT ORAN (3:4) */}
+            <div className="w-full bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg overflow-hidden">
+              <div className="w-full aspect-[3/4] flex items-center justify-center">
                 {product.image ? (
                   <img
                     src={product.image}
@@ -156,8 +158,9 @@ export default function QuickViewModal({
               </div>
             </div>
 
-            {/* Product Details - Ferah Yerlesim */}
-            <div className="space-y-5 overflow-y-auto max-h-[calc(95vh-100px)] pr-2">
+            {/* DETAYLAR ALANI */}
+            <div className="space-y-5">
+              
               {/* Baslik ve Kod */}
               <div>
                 <h2 className="text-2xl font-bold text-foreground mb-2">
@@ -203,7 +206,7 @@ export default function QuickViewModal({
                 <p className="text-xs text-muted-foreground mt-1">{t.unitPrice}</p>
               </div>
 
-              {/* Miktar Secimi */}
+              {/* MIKTAR SECIMI */}
               <div className="flex items-center gap-4 pb-4 border-b border-border">
                 <label className="text-sm font-semibold whitespace-nowrap">{t.quantity}:</label>
                 <div className="flex items-center gap-2 border border-border rounded-lg bg-background">
@@ -223,91 +226,88 @@ export default function QuickViewModal({
                 </div>
               </div>
 
-              {/* Islem Butonlari */}
-              <div className="space-y-3">
-                <div className="flex gap-3">
+              {/* DIKEY BUTON YAPISI - TAMAMIYLA RESPONSIVE */}
+              <div className="flex flex-col gap-3">
+                
+                {/* Ana Islem Butonlari - Alt Alta */}
+                <Button
+                  onClick={() => {
+                    for (let i = 0; i < quantity; i++) {
+                      onAddToCart(product);
+                    }
+                    onClose();
+                  }}
+                  className="w-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center gap-2 py-6 text-base"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  {t.addToCart}
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    onRequestQuote(product);
+                    onClose();
+                  }}
+                  variant="outline"
+                  className="w-full py-6 text-base"
+                >
+                  {t.requestQuote}
+                </Button>
+
+                {/* Favori ve Paylas Butonlari - Alt Alta */}
+                <Button
+                  onClick={handleAddToFavorites}
+                  variant="outline"
+                  className={`w-full flex items-center justify-center gap-2 py-6 transition-colors ${
+                    isFavorite ? "bg-red-50 border-red-300 text-red-600 hover:bg-red-100" : ""
+                  }`}
+                >
+                  <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
+                  <span>{isFavorite ? t.removeFromFavorites : t.addToFavorites}</span>
+                </Button>
+
+                <div className="relative w-full">
                   <Button
-                    onClick={() => {
-                      for (let i = 0; i < quantity; i++) {
-                        onAddToCart(product);
-                      }
-                      onClose();
-                    }}
-                    className="flex-1 bg-primary hover:bg-primary/90 text-white flex items-center justify-center gap-2 py-6"
-                  >
-                    <ShoppingCart className="w-4 h-4" />
-                    {t.addToCart}
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      onRequestQuote(product);
-                      onClose();
-                    }}
+                    onClick={() => setShowShareMenu(!showShareMenu)}
                     variant="outline"
-                    className="flex-1 py-6"
+                    className="w-full flex items-center justify-center gap-2 py-6"
                   >
-                    {t.requestQuote}
-                  </Button>
-                </div>
-
-                {/* Favori ve Paylas Butonlari */}
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleAddToFavorites}
-                    variant="outline"
-                    className={`flex-1 flex items-center justify-center gap-2 py-6 transition-colors ${
-                      isFavorite ? "bg-red-50 border-red-300 text-red-600 hover:bg-red-100" : ""
-                    }`}
-                  >
-                    <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
-                    <span className="hidden sm:inline">{isFavorite ? t.removeFromFavorites : t.addToFavorites}</span>
-                    <span className="sm:hidden">{isFavorite ? "Kaldir" : "Ekle"}</span>
+                    <Share2 className="w-4 h-4" />
+                    <span>{t.share}</span>
                   </Button>
 
-                  <div className="relative flex-1">
-                    <Button
-                      onClick={() => setShowShareMenu(!showShareMenu)}
-                      variant="outline"
-                      className="w-full flex items-center justify-center gap-2 py-6"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      <span className="hidden sm:inline">{t.share}</span>
-                      <span className="sm:hidden">Paylas</span>
-                    </Button>
-
-                    {/* Paylas Menusu */}
-                    {showShareMenu && (
-                      <div className="absolute top-full right-0 mt-2 bg-white border border-border rounded-lg shadow-lg z-50 min-w-[180px]">
-                        <div className="p-2">
-                          <p className="text-xs font-semibold text-muted-foreground px-2 py-2">{t.shareVia}</p>
-                          <button
-                            onClick={() => handleShare("whatsapp")}
-                            className="w-full text-left px-3 py-2 hover:bg-muted rounded text-sm transition-colors"
-                          >
-                            WhatsApp
-                          </button>
-                          <button
-                            onClick={() => handleShare("twitter")}
-                            className="w-full text-left px-3 py-2 hover:bg-muted rounded text-sm transition-colors"
-                          >
-                            Twitter
-                          </button>
-                          <button
-                            onClick={() => handleShare("facebook")}
-                            className="w-full text-left px-3 py-2 hover:bg-muted rounded text-sm transition-colors"
-                          >
-                            Facebook
-                          </button>
-                          <button
-                            onClick={() => handleShare("email")}
-                            className="w-full text-left px-3 py-2 hover:bg-muted rounded text-sm transition-colors"
-                          >
-                            Email
-                          </button>
-                        </div>
+                  {/* Paylas Menusu */}
+                  {showShareMenu && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-border rounded-lg shadow-lg z-50">
+                      <div className="p-2">
+                        <p className="text-xs font-semibold text-muted-foreground px-2 py-2">{t.shareVia}</p>
+                        <button
+                          onClick={() => handleShare("whatsapp")}
+                          className="w-full text-left px-3 py-2 hover:bg-muted rounded text-sm transition-colors"
+                        >
+                          WhatsApp
+                        </button>
+                        <button
+                          onClick={() => handleShare("twitter")}
+                          className="w-full text-left px-3 py-2 hover:bg-muted rounded text-sm transition-colors"
+                        >
+                          Twitter
+                        </button>
+                        <button
+                          onClick={() => handleShare("facebook")}
+                          className="w-full text-left px-3 py-2 hover:bg-muted rounded text-sm transition-colors"
+                        >
+                          Facebook
+                        </button>
+                        <button
+                          onClick={() => handleShare("email")}
+                          className="w-full text-left px-3 py-2 hover:bg-muted rounded text-sm transition-colors"
+                        >
+                          Email
+                        </button>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Datasheet Indir */}
